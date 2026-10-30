@@ -15,5 +15,8 @@ internal static class Program
         .AttachXamlMcp()
         .UsePlatformDetect()
         .WithInterFont()
+#if DEBUG
+        .WithDeveloperTools()
+#endif
         .LogToTrace();
 }

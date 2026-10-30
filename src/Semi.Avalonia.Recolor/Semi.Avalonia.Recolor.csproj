@@ -4,7 +4,9 @@
         <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
         <Version>1.0.0</Version>
         <Title>Semi.Avalonia.Recolor</Title>
-        <PackageTags>avalonia;semi;semi-design;theme;recolor;accent</PackageTags>
+        <PackageId>Semi.Avalonia.Recolor</PackageId>
+        <Description>Runtime Semi.Avalonia theme recoloring with ImagePicker and Android haptic feedback.</Description>
+        <PackageTags>avalonia;semi;semi-design;ursa;theme;recolor;accent;imagepicker;haptics</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);CS1591</NoWarn>

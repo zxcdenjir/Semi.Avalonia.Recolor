@@ -4,17 +4,15 @@ using Avalonia.Media;
 
 namespace Semi.Avalonia.Recolor;
 
-/// <summary>
-///     Color in the OKLCH color space (perceptually uniform lightness/chroma/hue).
-///     Conversions follow Björn Ottosson's OKLab reference implementation.
-/// </summary>
-/// <param name="L">Lightness, 0..1.</param>
-/// <param name="C">Chroma, 0..~0.37 (clamped to sRGB gamut on conversion).</param>
-/// <param name="H">Hue in radians.</param>
+/// <summary>Цвет в пространстве OKLCH: светлота, насыщенность и оттенок.</summary>
+/// <param name="L">Светлота в диапазоне от 0 до 1.</param>
+/// <param name="C">Насыщенность; при преобразовании ограничивается охватом sRGB.</param>
+/// <param name="H">Оттенок в радианах.</param>
 public readonly record struct Oklch(double L, double C, double H)
 {
     public double HueDegrees => H * 180.0 / Math.PI;
 
+    /// <summary>Преобразует цвет sRGB в компоненты OKLCH.</summary>
     public static Oklch FromColor(Color color)
     {
         double lr = SrgbToLinear(color.R);
@@ -36,9 +34,10 @@ public readonly record struct Oklch(double L, double C, double H)
         return new Oklch(L, Math.Sqrt(a * a + b * b), Math.Atan2(b, a));
     }
 
+    /// <summary>Преобразует значение OKLCH в цвет sRGB.</summary>
     public Color ToColor() => ToColor(L, C, H);
 
-    /// <summary>Converts OKLCH to sRGB, clamping chroma to the sRGB gamut.</summary>
+    /// <summary>Преобразует OKLCH в sRGB с ограничением насыщенности до охвата цветового пространства.</summary>
     public static Color ToColor(double l, double c, double h)
     {
         c = ClampChromaToGamut(l, c, h);
@@ -63,7 +62,7 @@ public readonly record struct Oklch(double L, double C, double H)
             -0.0041960863 * lCube - 0.7034186147 * mCube + 1.7076147010 * sCube);
     }
 
-    /// <summary>Binary search for the largest chroma that still fits inside the sRGB gamut.</summary>
+    /// <summary>Находит двоичным поиском наибольшую насыщенность, допустимую в sRGB.</summary>
     private static double ClampChromaToGamut(double l, double c, double h)
     {
         if (InGamut(l, c, h)) return c;

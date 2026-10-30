@@ -1,0 +1,14 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:u="clr-namespace:Ursa.Controls;assembly=Ursa"
+        xmlns:recolorUrsa="clr-namespace:Semi.Avalonia.Recolor.Ursa"
+        x:Class="Semi.Avalonia.Recolor.Ursa.UrsaRecolorStyles">
+    <Style Selector="u|UrsaWindow /template/ u|TitleBar#PART_TitleBar">
+        <Setter Property="Margin" Value="32,0,0,0" />
+    </Style>
+
+    <!-- Applies an overlay host to the outermost Avalonia Page on a TopLevel. -->
+    <Style Selector="Page">
+        <Setter Property="recolorUrsa:PageOverlayDialogHost.IsEnabled" Value="True" />
+    </Style>
+</Styles>

@@ -1,32 +1,30 @@
 using System;
+using System.Collections.Generic;
 
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Media;
 using Avalonia.Styling;
-using Avalonia.Threading;
+
+using Semi.Avalonia.Recolor.Haptics;
 
 namespace Semi.Avalonia.Recolor;
 
 /// <summary>
-///     Runtime recoloring of the Semi.Avalonia theme.
-///     Place it in <c>Application.Styles</c> right after <c>SemiTheme</c>:
+///     Перекрашивает ресурсы темы Semi.Avalonia во время работы приложения.
+///     Добавьте стиль после <c>SemiTheme</c> в <c>Application.Styles</c>:
 ///     <code>
 ///         &lt;Application.Styles&gt;
 ///             &lt;semi:SemiTheme Locale="ru-RU" /&gt;
 ///             &lt;recolor:SemiThemeRecolor PrimaryColor="#FF6A00" /&gt;
 ///         &lt;/Application.Styles&gt;
 ///     </code>
-///     The accent color and its full tonal ramp (Primary, Secondary, Information, Link,
-///     FocusBorder, selection highlight, …) are rebuilt from the user's color; the theme
-///     background can be replaced as well. Works in both Light and Dark variants and
-///     follows variant changes.
+///     Библиотека создаёт палитры Primary и Secondary в OKLCH и переопределяет связанные с ними
+///     ресурсы Semi и установленных дополнений. Ресурсы светлой и тёмной темы готовятся заранее.
 /// </summary>
 public class SemiThemeRecolor : Styles
 {
-    /// <summary>Any Semi palette dictionary contains this raw color key.</summary>
-    public const string PaletteMarkerKey = "SemiBlue5Color";
-
     public static readonly StyledProperty<Color?> PrimaryColorProperty =
         AvaloniaProperty.Register<SemiThemeRecolor, Color?>(nameof(PrimaryColor));
 
@@ -48,78 +46,105 @@ public class SemiThemeRecolor : Styles
     public static readonly StyledProperty<Color?> BackgroundColorDarkProperty =
         AvaloniaProperty.Register<SemiThemeRecolor, Color?>(nameof(BackgroundColorDark));
 
-    private const int MaxAttempts = 8;
+    public static readonly StyledProperty<bool> EnableHapticProperty =
+        AvaloniaProperty.Register<SemiThemeRecolor, bool>(nameof(EnableHaptic));
 
-    private RecolorMaps? _lastMaps;
-    private int _attempts;
+    public static readonly StyledProperty<HapticType> HapticTypeProperty =
+        AvaloniaProperty.Register<SemiThemeRecolor, HapticType>(nameof(HapticType), HapticType.Click);
+
+
+    private readonly Dictionary<string, SolidColorBrush> _overrideBrushes = new(StringComparer.Ordinal);
+    private RecolorInput? _cachedInput;
+    private RecolorMaps? _cachedMaps;
     private Application? _application;
 
     public SemiThemeRecolor()
     {
+        InitializeThemeResourceDictionaries();
+
+        Add(new Style(selector => selector.OfType<ItemsControl>().Class("SemiSpaced"))
+        {
+            Setters =
+            {
+                new Setter(ItemsControl.ItemsPanelProperty,
+                    new FuncTemplate<Panel>(() => new StackPanel { Spacing = 12 })),
+            },
+        });
+
         OwnerChanged += OnOwnerChanged;
         _application = Application.Current;
-        if (_application is { } application)
-        {
-            application.ActualThemeVariantChanged += OnApplicationThemeVariantChanged;
-        }
 
-        Reapply();
+        // Initial XAML values are applied once the style is attached to Application.Styles.
     }
 
-    /// <summary>The accent color used as-is in the dark theme; the light theme gets a
-    /// lightness-adapted version. Set to <c>null</c> to keep the default blue.</summary>
+    /// <summary>Акцент для тёмной темы. Для светлой темы цвет адаптируется по светлоте.
+    /// Значение <see langword="null"/> сохраняет стандартную синюю палитру.</summary>
     public Color? PrimaryColor
     {
         get => GetValue(PrimaryColorProperty);
         set => SetValue(PrimaryColorProperty, value);
     }
 
-    /// <summary>Explicit accent override for the light theme.</summary>
+    /// <summary>Явный акцент светлой темы.</summary>
     public Color? PrimaryColorLight
     {
         get => GetValue(PrimaryColorLightProperty);
         set => SetValue(PrimaryColorLightProperty, value);
     }
 
-    /// <summary>Explicit accent override for the dark theme.</summary>
+    /// <summary>Явный акцент тёмной темы.</summary>
     public Color? PrimaryColorDark
     {
         get => GetValue(PrimaryColorDarkProperty);
         set => SetValue(PrimaryColorDarkProperty, value);
     }
 
-    /// <summary>Companion accent color (the LightBlue family). When omitted, it is derived
-    /// from the primary color the same way Semi derives LightBlue from Blue.</summary>
+    /// <summary>Дополнительный акцент (семейство LightBlue). Если значение не задано,
+    /// цвет вычисляется на основе Primary с сохранением пропорций палитры Semi.</summary>
     public Color? SecondaryColor
     {
         get => GetValue(SecondaryColorProperty);
         set => SetValue(SecondaryColorProperty, value);
     }
 
-    /// <summary>Application background color. In the dark theme a full Background0..4 ramp
-    /// is derived from it; in the light theme only Background0 (the window base) is replaced.</summary>
+    /// <summary>Фон приложения для обеих тем. Для тёмной темы строится шкала Background0–4;
+    /// в светлой заменяется только Background0.</summary>
     public Color? BackgroundColor
     {
         get => GetValue(BackgroundColorProperty);
         set => SetValue(BackgroundColorProperty, value);
     }
 
-    /// <summary>Background override for the light theme; falls back to <see cref="BackgroundColor" />.</summary>
+    /// <summary>Фон светлой темы. Если он не задан, используется <see cref="BackgroundColor"/>.</summary>
     public Color? BackgroundColorLight
     {
         get => GetValue(BackgroundColorLightProperty);
         set => SetValue(BackgroundColorLightProperty, value);
     }
 
-    /// <summary>Background override for the dark theme; falls back to <see cref="BackgroundColor" />.</summary>
+    /// <summary>Фон тёмной темы. Если он не задан, используется <see cref="BackgroundColor"/>.</summary>
     public Color? BackgroundColorDark
     {
         get => GetValue(BackgroundColorDarkProperty);
         set => SetValue(BackgroundColorDarkProperty, value);
     }
 
-    /// <summary>Applies the current property values to every Semi palette currently loaded
-    /// in the application. Safe to call multiple times (idempotent).</summary>
+    /// <summary>Включает тактильный отклик для кнопок без локальной настройки.</summary>
+    public bool EnableHaptic
+    {
+        get => GetValue(EnableHapticProperty);
+        set => SetValue(EnableHapticProperty, value);
+    }
+
+    /// <summary>Тип тактильного отклика по умолчанию.</summary>
+    public HapticType HapticType
+    {
+        get => GetValue(HapticTypeProperty);
+        set => SetValue(HapticTypeProperty, value);
+    }
+
+    /// <summary>Повторно применяет текущие значения свойств к переопределениям ресурсов.
+    /// Метод можно вызывать несколько раз.</summary>
     public void Reapply()
     {
         var application = ResolveApplication();
@@ -163,32 +188,20 @@ public class SemiThemeRecolor : Styles
             ? RampBuilder.Adapt(sl, SemiPalette.DarkBlue[5], SemiPalette.LightBlue[5])
             : (Color?)null;
 
-        var maps = PaletteMapBuilder.Build(darkTarget, lightTarget, secondaryDark, secondaryLight,
+        var input = new RecolorInput(darkTarget, lightTarget, secondaryDark, secondaryLight,
             backgroundDark, backgroundLight);
-
-        if (_lastMaps is { } previous && !previous.IsEmpty)
+        if (_cachedInput != input || _cachedMaps is null)
         {
-            ApplyMaps(application, PaletteMapBuilder.Invert(previous));
+            _cachedInput = input;
+            _cachedMaps = PaletteMapBuilder.Build(darkTarget, lightTarget, secondaryDark, secondaryLight,
+                backgroundDark, backgroundLight);
         }
 
-        var visitor = new RecolorApplyVisitor(maps);
-        ResourceWalker.WalkApplication(application, visitor);
-
-        if (visitor.PaletteCount == 0)
-        {
-            // The Semi palette is not loaded yet (e.g. this style is created before
-            // SemiTheme has been attached to the application) — try again later.
-            if (_attempts < MaxAttempts)
-            {
-                _attempts++;
-                ScheduleReapply();
-            }
-
-            return;
-        }
-
-        _attempts = 0;
-        _lastMaps = maps;
+        // Install both variants up front. Waiting for ActualThemeVariantChanged during app
+        // startup lets controls briefly resolve Semi's original palette (especially when the
+        // system theme is discovered after the first window is shown).
+        ApplyPaletteOverrides(_cachedMaps, isDark: false);
+        ApplyPaletteOverrides(_cachedMaps, isDark: true);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -196,32 +209,32 @@ public class SemiThemeRecolor : Styles
         base.OnPropertyChanged(change);
         if (change.Property.OwnerType == typeof(SemiThemeRecolor))
         {
-            ScheduleReapply();
+            if (change.Property == EnableHapticProperty)
+                HapticFeedback.IsGloballyEnabled = EnableHaptic;
+            else if (change.Property == HapticTypeProperty)
+                HapticFeedback.DefaultType = HapticType;
+            else if (Owner is not null)
+                Reapply();
         }
     }
 
-    /// <summary>Restores the original Semi colors previously changed by this instance.</summary>
+    /// <summary>Удаляет переопределения и восстанавливает исходные цвета Semi.</summary>
     public void Reset()
     {
-        if (_lastMaps is not { } previous || previous.IsEmpty)
+        if (Resources is { } resources)
         {
-            _lastMaps = null;
-            return;
+            foreach (var variant in new[] { ThemeVariant.Default, ThemeVariant.Light, ThemeVariant.Dark })
+            {
+                if (resources.ThemeDictionaries.TryGetValue(variant, out var provider)
+                    && provider is ResourceDictionary dictionary)
+                {
+                    foreach (var key in PaletteResourceCatalog.Targets)
+                        dictionary.Remove(key.ResourceKey);
+                }
+            }
         }
 
-        var application = ResolveApplication();
-        if (application is not null)
-        {
-            ApplyMaps(application, PaletteMapBuilder.Invert(previous));
-        }
-
-        _lastMaps = null;
-    }
-
-    private static void ApplyMaps(Application application, RecolorMaps maps)
-    {
-        var visitor = new RecolorApplyVisitor(maps);
-        ResourceWalker.WalkApplication(application, visitor);
+        _overrideBrushes.Clear();
     }
 
     private Application? ResolveApplication()
@@ -230,12 +243,146 @@ public class SemiThemeRecolor : Styles
         return _application;
     }
 
-    private void ScheduleReapply()
+    private void OnOwnerChanged(object? sender, EventArgs e)
     {
-        Dispatcher.UIThread.Post(Reapply, DispatcherPriority.Background);
+        Reapply();
     }
 
-    private void OnOwnerChanged(object? sender, EventArgs e) => ScheduleReapply();
+    private readonly record struct RecolorInput(Color? Dark, Color? Light, Color? SecondaryDark,
+        Color? SecondaryLight, Color? BackgroundDark, Color? BackgroundLight);
 
-    private void OnApplicationThemeVariantChanged(object? sender, EventArgs e) => Reapply();
+    private void ApplyPaletteOverrides(RecolorMaps maps, bool isDark)
+    {
+        var variants = isDark
+            ? new[] { ThemeVariant.Dark }
+            : new[] { ThemeVariant.Default, ThemeVariant.Light };
+        foreach (var variant in variants)
+        {
+            var dictionary = GetThemeDictionary(variant);
+
+            foreach (var target in PaletteResourceCatalog.Targets)
+            {
+                if (!TryMapResourceTarget(target.SourcePaletteKey, maps, isDark, out var color, out var opacity))
+                {
+                    dictionary.Remove(target.ResourceKey);
+                    _overrideBrushes.Remove(GetBrushCacheKey(variant, target.ResourceKey));
+                    continue;
+                }
+
+                var cacheKey = GetBrushCacheKey(variant, target.ResourceKey);
+                if (!_overrideBrushes.TryGetValue(cacheKey, out var brush))
+                {
+                    brush = new SolidColorBrush(color, opacity);
+                    _overrideBrushes.Add(cacheKey, brush);
+                }
+                else
+                {
+                    if (brush.Color != color)
+                        brush.Color = color;
+                    if (brush.Opacity != opacity)
+                        brush.Opacity = opacity;
+                }
+
+                if (!dictionary.TryGetValue(target.ResourceKey, out var current) || !ReferenceEquals(current, brush))
+                    dictionary[target.ResourceKey] = brush;
+            }
+        }
+    }
+
+    private void InitializeThemeResourceDictionaries()
+    {
+        Resources ??= new ResourceDictionary();
+        _ = GetThemeDictionary(ThemeVariant.Default);
+        _ = GetThemeDictionary(ThemeVariant.Light);
+        _ = GetThemeDictionary(ThemeVariant.Dark);
+    }
+
+    private ResourceDictionary GetThemeDictionary(ThemeVariant variant)
+    {
+        var resources = Resources ??= new ResourceDictionary();
+        if (resources.ThemeDictionaries.TryGetValue(variant, out var provider)
+            && provider is ResourceDictionary dictionary)
+            return dictionary;
+
+        dictionary = new ResourceDictionary();
+        resources.ThemeDictionaries[variant] = dictionary;
+        return dictionary;
+    }
+
+    private static string GetBrushCacheKey(ThemeVariant variant, string resourceKey) =>
+        $"{variant.Key}:{resourceKey}";
+
+    private static bool TryMapResourceTarget(string sourceKey, RecolorMaps maps, bool isDark,
+        out Color color, out double opacity)
+    {
+        color = default;
+        opacity = 1;
+
+        if (sourceKey.StartsWith("SemiColorBackground", StringComparison.Ordinal)
+            && int.TryParse(sourceKey.AsSpan("SemiColorBackground".Length), out var backgroundIndex))
+        {
+            if (isDark && maps.DarkBackgroundRamp is { } backgroundRamp && backgroundIndex < backgroundRamp.Length)
+            {
+                color = backgroundRamp[backgroundIndex];
+                return true;
+            }
+
+            if (!isDark && backgroundIndex == 0 && maps.LightBackground0 is { } lightBackground)
+            {
+                color = lightBackground;
+                return true;
+            }
+
+            return false;
+        }
+
+        if (sourceKey == "SemiColorNavBackground" && isDark && maps.DarkBackgroundRamp is { Length: > 1 } navRamp)
+        {
+            color = navRamp[1];
+            return true;
+        }
+
+        if (sourceKey == "SemiColorOverlayBackground" && isDark && maps.DarkBackgroundRamp is { Length: > 0 } overlayRamp)
+        {
+            color = overlayRamp[0];
+            opacity = 0.6;
+            return true;
+        }
+
+        var isPrimary = sourceKey.StartsWith("SemiColorPrimary", StringComparison.Ordinal);
+        var isInformation = sourceKey.StartsWith("SemiColorInformation", StringComparison.Ordinal);
+        var isSecondary = sourceKey.StartsWith("SemiColorSecondary", StringComparison.Ordinal);
+        if (!isPrimary && !isInformation && !isSecondary)
+            return false;
+
+        var sourcePrefixLength = isPrimary
+            ? "SemiColorPrimary".Length
+            : isInformation
+                ? "SemiColorInformation".Length
+                : "SemiColorSecondary".Length;
+        var suffix = sourceKey[sourcePrefixLength..];
+        var ramp = isPrimary || isInformation
+            ? isDark ? SemiPalette.DarkBlue : SemiPalette.LightBlue
+            : isDark ? SemiPalette.DarkLightBlue : SemiPalette.LightLightBlue;
+
+        int index;
+        switch (suffix)
+        {
+            case "": index = 5; break;
+            case "Pointerover": index = 6; break;
+            case "Active": index = 7; break;
+            case "Disabled": index = 2; break;
+            case "Light": index = isDark ? 5 : 0; opacity = isDark ? 0.2 : 1; break;
+            case "LightPointerover": index = isDark ? 5 : 1; opacity = isDark ? 0.3 : 1; break;
+            case "LightActive": index = isDark ? 5 : 2; opacity = isDark ? 0.4 : 1; break;
+            default: return false;
+        }
+
+        var sourceColor = ramp[index];
+        var map = isDark ? maps.DarkAccent : maps.LightAccent;
+        if (!map.TryGetValue(sourceColor, out color))
+            return false;
+
+        return true;
+    }
 }

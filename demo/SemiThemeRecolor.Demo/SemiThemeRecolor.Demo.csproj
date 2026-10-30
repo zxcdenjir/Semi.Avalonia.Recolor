@@ -10,14 +10,19 @@
     <ItemGroup>
         <PackageReference Include="Avalonia.Desktop" />
         <PackageReference Include="Avalonia.Fonts.Inter" />
+        <PackageReference Include="Avalonia.Controls.ColorPicker" />
+        <PackageReference Include="AvaloniaUI.DiagnosticsSupport" />
         <PackageReference Include="CommunityToolkit.Mvvm" />
         <PackageReference Include="Semi.Avalonia" />
         <PackageReference Include="Semi.Avalonia.DataGrid" />
+        <PackageReference Include="Semi.Avalonia.ColorPicker" />
+        <PackageReference Include="Irihi.Ursa.Themes.Semi" />
         <PackageReference Include="XamlMcp.Avalonia" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Semi.Avalonia.Recolor\Semi.Avalonia.Recolor.csproj" />
+        <ProjectReference Include="..\..\src\Semi.Avalonia.Recolor.Ursa\Semi.Avalonia.Recolor.Ursa.csproj" />
     </ItemGroup>
 
 </Project>

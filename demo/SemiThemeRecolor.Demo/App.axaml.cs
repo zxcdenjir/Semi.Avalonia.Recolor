@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 using Avalonia;
@@ -19,7 +20,7 @@ namespace SemiThemeRecolor.Demo;
 
 public partial class App : Application
 {
-    /// <summary>The recolor style declared in <c>App.axaml</c>.</summary>
+    /// <summary>Стиль перекраски, объявленный в <c>App.axaml</c>.</summary>
     public static RecolorStyle? Recolor { get; private set; }
 
     public override void Initialize() => AvaloniaXamlLoader.Load(this);
@@ -27,6 +28,61 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         Recolor = Styles.OfType<RecolorStyle>().FirstOrDefault();
+
+        if (Recolor is { } benchmarkTarget
+            && Environment.GetEnvironmentVariable("SEMI_RECOLOR_BENCHMARK") == "1")
+        {
+            var colors = new[] { "#FF6A00", "#00A870", "#7C4DFF", "#E0356F", "#00A6B4", "#C79100" };
+            var refreshStopwatch = Stopwatch.StartNew();
+            benchmarkTarget.Reapply();
+            refreshStopwatch.Stop();
+            Console.WriteLine($"Palette resource refresh: {refreshStopwatch.Elapsed.TotalMilliseconds:F1} ms");
+            benchmarkTarget.Reapply(); // Warm up JIT and the resource graph before measuring.
+            var stopwatch = Stopwatch.StartNew();
+            foreach (var color in colors)
+            {
+                benchmarkTarget.PrimaryColor = Color.Parse(color);
+            }
+
+            stopwatch.Stop();
+            Console.WriteLine($"{colors.Length} cached recolors: {stopwatch.Elapsed.TotalMilliseconds:F1} ms "
+                              + $"({stopwatch.Elapsed.TotalMilliseconds / colors.Length:F1} ms/apply)");
+            benchmarkTarget.PrimaryColor = Color.Parse("#FF6A00");
+        }
+
+        if (Recolor is { } resetTarget
+            && Environment.GetEnvironmentVariable("SEMI_RECOLOR_RESET_CHECK") == "1")
+        {
+            resetTarget.PrimaryColor = null;
+            resetTarget.PrimaryColorLight = null;
+            resetTarget.PrimaryColorDark = null;
+            resetTarget.SecondaryColor = null;
+            resetTarget.BackgroundColor = null;
+            resetTarget.BackgroundColorLight = null;
+            resetTarget.BackgroundColorDark = null;
+            resetTarget.Reset();
+            var variants = new[] { ThemeVariant.Dark, ThemeVariant.Light };
+            var original = variants
+                .Select(variant => ResourceNodeExtensions.TryFindResource(this, "SemiColorPrimary", variant,
+                    out var value) && value is ISolidColorBrush brush ? brush.Color : (Color?)null)
+                .ToArray();
+            resetTarget.PrimaryColor = Color.Parse("#FFFFFF");
+            resetTarget.Reapply();
+            resetTarget.PrimaryColor = null;
+            resetTarget.Reapply();
+            var restored = variants
+                .Select(variant => ResourceNodeExtensions.TryFindResource(this, "SemiColorPrimary", variant,
+                    out var value) && value is ISolidColorBrush brush ? brush.Color : (Color?)null)
+                .ToArray();
+            if (!original.SequenceEqual(restored))
+            {
+                throw new InvalidOperationException(
+                    $"Reset mismatch: [{string.Join(", ", original.Select(color => color?.ToString() ?? "<null>"))}] "
+                    + $"became [{string.Join(", ", restored.Select(color => color?.ToString() ?? "<null>"))}].");
+            }
+
+            Console.WriteLine("Reset restored both original theme palettes.");
+        }
 
         // Dev-only: exercise the "secondary accent without a primary" path.
         if (Recolor is { } recolor
@@ -75,7 +131,7 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    /// <summary>Dev-only: renders the main window to a PNG and exits.</summary>
+    /// <summary>В режиме разработки сохраняет изображение окна в PNG и завершает приложение.</summary>
     private static void RenderAndExit(Window window, string path, IClassicDesktopStyleApplicationLifetime desktop)
     {
         var pixelSize = new PixelSize(
@@ -90,7 +146,7 @@ public partial class App : Application
         desktop.Shutdown();
     }
 
-    /// <summary>Dev-only diagnostics: prints the effective Semi resources, then exits.</summary>
+    /// <summary>Выводит значения используемых ресурсов Semi и завершает приложение.</summary>
     private void DumpAndExit()
     {
         string[] keys =
@@ -115,6 +171,8 @@ public partial class App : Application
             "ButtonOutlineBorderBrush",
             "DataGridRowSelectedBackground",
             "TextBlockSelectionBackground",
+            "AvatarBlueBackground",
+            "BadgePrimaryBadgeBackground",
         ];
 
         Console.WriteLine($"variant = {ActualThemeVariant}");

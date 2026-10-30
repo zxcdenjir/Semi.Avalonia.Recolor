@@ -1,96 +1,98 @@
 # Semi.Avalonia.Recolor
 
-Runtime accent (and background) recoloring for the [Semi.Avalonia](https://github.com/irihitech/Semi.Avalonia)
-theme. Give it one HEX color — it rebuilds the whole accent palette in OKLCH and applies it live,
-without touching any control theme by hand.
+**Задайте цвет приложения один раз — библиотека перекрасит связанные ресурсы Semi.Avalonia и доступные ресурсы Ursa.**
+
+## Установка
+
+```sh
+dotnet add package Semi.Avalonia.Recolor
+```
+
+Для Ursa устанавливается отдельный необязательный пакет `Semi.Avalonia.Recolor.Ursa`.
+
+## Быстрый старт
+
+Добавьте стиль после `SemiTheme` в `App.axaml`:
 
 ```xml
 <Application.Styles>
-    <semi:SemiTheme Locale="ru-RU" />
-    <recolor:SemiThemeRecolor PrimaryColor="#FF6A00" />
+    <semi:SemiTheme />
+    <recolor:SemiThemeRecolor
+        PrimaryColor="#FF6A00"
+        BackgroundColorDark="#1B1B22"
+        BackgroundColorLight="#F3F5F9" />
 </Application.Styles>
 ```
 
+Если задан только `PrimaryColor`, библиотека сама адаптирует акцент для светлой темы. При необходимости задайте `PrimaryColorLight`, `PrimaryColorDark` и `SecondaryColor` отдельно.
+
+## Как устроена перекраска
+
+Тема Semi связывает стили контролов с семантическими цветами через ключи ресурсов, например `ButtonSolidPrimaryBackground` → `SemiColorPrimary`. Библиотека содержит каталог таких ключей для Semi и Ursa и публикует соответствующие кисти из собственного словаря ресурсов. Она не обходит дерево стилей при запуске и не изменяет исходные кисти Semi.
+
+При изменении акцента пересчитываются только значения каталога. Палитры Light и Dark подготавливаются заранее, а Ursa-ресурсы работают только если тема Ursa установлена. Информационные оттенки Semi являются алиасами синей Primary-палитры и следуют за выбранным акцентом.
+
+## Параметры цветов
+
+| Свойство | Назначение |
+| --- | --- |
+| `PrimaryColor` | Основной акцент; применяется напрямую в Dark и адаптируется по светлоте в Light. |
+| `PrimaryColorLight`, `PrimaryColorDark` | Явные акценты для соответствующих тем. |
+| `SecondaryColor` | Дополнительный акцент семейства LightBlue; строится из Primary, если не задан. |
+| `BackgroundColor` | Общий фон обеих тем. |
+| `BackgroundColorLight`, `BackgroundColorDark` | Фоны Light и Dark по отдельности. |
+
+Для тёмной темы строится шкала `Background0–4`. Для светлой меняется только базовый `Background0`, сохраняя контраст белого текста и поверхностей.
+
+Все параметры — `StyledProperty<Color?>`; в XAML поддерживаются HEX-цвета и именованные цвета. `Reapply()` повторно применяет текущие настройки, а `Reset()` удаляет переопределения.
+
+## Дополнительные контролы
+
+### ImagePicker
+
+`ImagePicker` открывает системный выбор файла, показывает предпросмотр и принимает PNG, JPEG, WebP и BMP. GIF исключён. `Image` (`Bitmap?`) и `ImagePath` (`string?`) — двусторонние свойства. `Placeholder` принимает любой `Control`, кнопка сброса очищает выбранное изображение.
+
+По умолчанию размер файла ограничен 30 МиБ, а изображение декодируется с максимальной стороной 2048 пикселей. Оба ограничения можно изменить или отключить.
+
 ```xml
-xmlns:semi="https://irihi.tech/semi"
-xmlns:recolor="https://irihi.tech/semi.recolor"
+<recolor:ImagePicker
+    Image="{Binding SelectedImage, Mode=TwoWay}"
+    ImagePath="{Binding SelectedImagePath, Mode=TwoWay}"
+    CornerRadius="12"
+    Stretch="UniformToFill" />
 ```
 
-## Why a special package is needed
+### Тактильный отклик Android
 
-Semi's control themes (`Themes/Light/*.axaml`, `Themes/Dark/*.axaml`, `Ursa.Themes.Semi`) alias the
-palette through `<StaticResource x:Key="ButtonSolidPrimaryBackground" ResourceKey="SemiColorPrimary" />`.
-Those aliases are **captured when the theme dictionary is materialized**, so simply adding an override
-dictionary after `<semi:SemiTheme/>` does not affect already-created controls.
+Включите отклик для кнопок и задайте тип по умолчанию:
 
-`SemiThemeRecolor` instead walks the entire resource graph reachable from `Application` (application
-resources, every `Styles` tree, merged/theme dictionaries, control themes, setters) and mutates the
-**shared `SolidColorBrush` instances** in the Semi palettes in place. Every `StaticResource` capture and
-every `DynamicResource` lookup keeps pointing to the same brush, so buttons, check boxes, sliders, tabs,
-`DataGrid`, `TreeDataGrid`, `ColorPicker` and `Ursa.Themes.Semi` are all recolored consistently.
-Raw `<Color>` entries are replaced as well, so later re-materialization stays recolored.
+```xml
+<recolor:SemiThemeRecolor EnableHaptic="True" HapticType="Click" />
+```
 
-## Tonal ramps
+Отдельную кнопку можно настроить через `HapticFeedback.IsEnabled` и `HapticFeedback.Type`. В Android-приложении добавьте разрешение `android.permission.VIBRATE`. На других платформах встроенный обработчик ничего не делает; при необходимости задайте собственную реализацию через `HapticFeedback.PlatformFeedback`.
 
-The original `SemiBlue0..9` / `SemiLightBlue0..9` scales are converted to OKLCH, the lightness curve and
-chroma ratio are preserved, and your color becomes step 5 (the accent step in both variants):
+### Интервал в ItemsControl
 
-* **Dark theme** — `PrimaryColor` is used as-is.
-* **Light theme** — the same hue/chroma is moved to the lightness of the original light accent
-  (`#0064FA`), so it stays readable on white.
-* **Secondary** — derived from the primary exactly like Semi derives `LightBlue` from `Blue`
-  (lightness/chroma/hue delta of the original pair), unless `SecondaryColor` is set.
-* **Semantic colors** (`Primary`, `Pointerover`, `Active`, `Disabled`, `PrimaryLight*`, `Secondary*`,
-  `Information*`, `Link*`, `FocusBorder`, text/`TextBox` selection highlight) are covered by the same maps.
-* **AI gradients** (`SemiAIGeneral*`, `Colorful` buttons) are deliberately left untouched.
+Добавьте `Classes="SemiSpaced"`, чтобы использовать вертикальную `StackPanel` с `Spacing="12"`. Этот класс заменяет панель элементов, поэтому не подходит для виртуализируемых списков.
 
-## Properties
+## Сохранение пользовательского цвета
 
-| Property | Type | Behavior |
-| --- | --- | --- |
-| `PrimaryColor` | `Color?` | Accent as-is in dark; lightness-adapted in light. |
-| `PrimaryColorLight` | `Color?` | Explicit light accent (overrides adaptation). |
-| `PrimaryColorDark` | `Color?` | Explicit dark accent. |
-| `SecondaryColor` | `Color?` | Companion accent (LightBlue family); derived from primary when null. |
-| `BackgroundColor` | `Color?` | Background for both variants. |
-| `BackgroundColorLight` | `Color?` | Light background, falls back to `BackgroundColor`. |
-| `BackgroundColorDark` | `Color?` | Dark background, falls back to `BackgroundColor`. |
+Библиотека не выбирает хранилище настроек. Приложение сохраняет HEX-цвет своим способом и восстанавливает его до показа главного окна:
 
-All properties are `StyledProperty<Color?>`, so XAML accepts `#RRGGBB`, `#AARRGGBB` and named colors.
+```csharp
+if (Color.TryParse(savedAccent, out var accent))
+{
+    recolor.PrimaryColor = accent;
+    recolor.Reapply();
+}
+```
 
-Background rules:
+## Совместимость
 
-* **Dark** — a `Background0..4` ramp plus `SemiColorNavBackground` / `SemiColorOverlayBackground` is
-  derived from your color, following the original background lightness curve.
-* **Light** — only `Background0` (the window base) is replaced; `Background1..4` stay white because they
-  share the same value as `SemiColorWhite` (text on solid accent buttons must stay white).
+- Avalonia 12.x (`net8.0` и `net10.0`).
+- Проверено с Semi.Avalonia 12.1.0.1 и Ursa 2.2.0.
+- Основной пакет зависит только от Avalonia; Semi и Ursa не являются обязательными зависимостями.
+- Встроенный тактильный отклик предусмотрен для Android.
 
-Runtime API: `Reapply()` applies the current values again, `Reset()` restores the original Semi palette.
-Changes to the properties and `Application.ActualThemeVariantChanged` are handled automatically.
-
-## Compatibility
-
-* Avalonia 12.x (tested with 12.1.0).
-* Semi.Avalonia 12.1.0.1 (`Semi.Avalonia`, `Semi.Avalonia.DataGrid`, `Semi.Avalonia.TreeDataGrid`,
-  `Semi.Avalonia.ColorPicker`) and `Irihi.Ursa.Themes.Semi` 2.2.0 (verified live with an Ursa app:
-  `Avatar`, `Badge`, … are recolored).
-* `net8.0` and `net10.0`.
-* High-contrast variants (`Aquatic`, `Desert`, `Dusk`, `NightSky`) are system-color based and are not
-  recolored.
-
-The package depends only on `Avalonia`; it does not reference Semi.Avalonia and works by resource
-keys/hex values.
-
-## How it is wired
-
-1. `SemiThemeRecolor : Styles` is placed after `SemiTheme` in `Application.Styles`.
-2. On attach (and on every property/theme change) it builds `RecolorMaps` for both variants.
-3. `ResourceWalker` recurses through `IResourceDictionary` / `ResourceInclude` / `StyleInclude` /
-   `ControlTheme` / `Style` / setters and materializes deferred resource aliases.
-4. `RecolorApplyVisitor` mutates brushes (`SolidColorBrush.Color`), replaces `Color` entries and the
-   palette background keys. The previous maps are inverted before a new apply, so repeated calls are
-   idempotent.
-
-## License
-
-MIT
+Лицензия: MIT.

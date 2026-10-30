@@ -3,11 +3,16 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:SemiThemeRecolor.Demo.ViewModels"
+    xmlns:u="https://irihi.tech/ursa"
+    xmlns:recolor="https://irihi.tech/semi.recolor"
     x:DataType="vm:MainWindowViewModel"
     Title="SemiThemeRecolor Demo"
     Width="980"
     Height="780"
     Background="{DynamicResource SemiColorBackground0}">
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
 
     <Window.Styles>
         <Style Selector="Border.Card">
@@ -53,6 +58,12 @@
                 <Border Classes="Card">
                     <StackPanel Spacing="14">
                         <TextBlock Classes="SectionTitle" Text="Акцентный цвет" />
+                        <ColorPicker
+                            Color="{Binding PickerColor}"
+                            IsAlphaEnabled="False"
+                            IsAlphaVisible="False"
+                            MaxHeight="300"
+                            HorizontalAlignment="Left" />
                         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
                             <TextBox
                                 Text="{Binding AccentHex, UpdateSourceTrigger=PropertyChanged}"
@@ -137,6 +148,65 @@
                         </StackPanel>
 
                         <TextBlock Classes="Hint" Text="{Binding Status}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Border Classes="Card">
+                    <StackPanel Spacing="14">
+                        <TextBlock Classes="SectionTitle" Text="Ursa поверх Semi" />
+                        <TextBlock
+                            Classes="Hint"
+                            Text="Эти контролы используют тему Irihi.Ursa.Themes.Semi. Перекрашивание остаётся необязательным для приложений, в которых Ursa не подключена."
+                            TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <u:Avatar Content="UR" Classes="Blue" />
+                            <u:Avatar Content="SEMI" Classes="Green Square" />
+                            <u:Badge Header="Primary">
+                                <Button Content="Ursa Badge" />
+                            </u:Badge>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <u:Badge Header="NEW">
+                                <u:Avatar Content="A" Classes="Purple" />
+                            </u:Badge>
+                            <u:Badge Dot="True">
+                                <u:Avatar Content="B" Classes="Orange" />
+                            </u:Badge>
+                            <Button Content="Ursa themed control" />
+                        </StackPanel>
+                        <TextBlock Classes="Hint" Text="ItemsControl Classes=SemiSpaced добавляет вертикальный интервал 12." />
+                        <ItemsControl Classes="SemiSpaced">
+                            <TextBlock Text="Первый элемент" />
+                            <TextBlock Text="Второй элемент" />
+                            <TextBlock Text="Третий элемент" />
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Classes="Card">
+                    <StackPanel Spacing="12">
+                        <TextBlock Classes="SectionTitle" Text="ImagePicker и Haptic" />
+                        <TextBlock Classes="Hint" Text="ImagePicker использует системный выбор файлов, показывает выбранную картинку сразу и позволяет её сбросить. GIF исключён." TextWrapping="Wrap" />
+                        <recolor:ImagePicker Width="280" Height="180" CornerRadius="12"
+                                             Image="{Binding PickedImage, Mode=TwoWay}"
+                                             ImagePath="{Binding PickedImagePath, Mode=TwoWay}"
+                                             Stretch="{Binding PickerStretch}" />
+                        <TextBlock Classes="Hint" Text="{Binding PickedImagePath, FallbackValue=Путь выбранного файла появится здесь.}" TextWrapping="Wrap" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Text="Масштаб изображения" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding StretchModes}" SelectedItem="{Binding PickerStretch}" />
+                        </Grid>
+                        <CheckBox Content="Включить Haptic" IsChecked="{Binding HapticsEnabled}" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Text="Тип отклика" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding HapticTypes}" SelectedItem="{Binding SelectedHapticType}" />
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Button Content="Проверить глобальную настройку" />
+                            <Button Content="Проверить принудительно"
+                                    recolor:HapticFeedback.IsEnabled="True" recolor:HapticFeedback.Type="{Binding SelectedHapticType}" />
+                        </StackPanel>
+                        <TextBlock Classes="Hint" Text="На Android добавьте разрешение android.permission.VIBRATE. На платформах без стандартного вибромотора можно установить HapticFeedback.PlatformFeedback." TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
 

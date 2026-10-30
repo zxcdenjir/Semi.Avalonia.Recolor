@@ -5,40 +5,22 @@ using Avalonia.Media;
 
 namespace Semi.Avalonia.Recolor;
 
-/// <summary>Everything the recolor pass needs, already resolved per theme variant.</summary>
-/// <param name="DarkAccent">
-///     Original hex → recolored hex for the dark palette (Blue + LightBlue + extras).
-/// </param>
-/// <param name="LightAccent">
-///     Original hex → recolored hex for the light palette (Blue + LightBlue + extras).
-/// </param>
-/// <param name="DarkBackgroundRamp">
-///     Dark theme Background0..4 ramp, null when the background is not recolored.
-/// </param>
-/// <param name="LightBackground0">
-///     Light theme Background0 replacement, null when the background is not recolored.
-/// </param>
+/// <summary>Цветовые замены для акцентных палитр и фона каждой темы.</summary>
+/// <param name="DarkAccent">Замены цветов акцентной шкалы тёмной темы.</param>
+/// <param name="LightAccent">Замены цветов акцентной шкалы светлой темы.</param>
+/// <param name="DarkBackgroundRamp">Шкала фона тёмной темы либо <see langword="null"/>.</param>
+/// <param name="LightBackground0">Цвет Background0 светлой темы либо <see langword="null"/>.</param>
 internal sealed record RecolorMaps(
     IReadOnlyDictionary<Color, Color> DarkAccent,
     IReadOnlyDictionary<Color, Color> LightAccent,
     Color[]? DarkBackgroundRamp,
     Color? LightBackground0)
 {
-    public static RecolorMaps Empty { get; } =
-        new(new Dictionary<Color, Color>(), new Dictionary<Color, Color>(), null, null);
-
-    public bool IsEmpty => DarkAccent.Count == 0
-                           && LightAccent.Count == 0
-                           && DarkBackgroundRamp is null
-                           && LightBackground0 is null;
 }
 
 internal static class PaletteMapBuilder
 {
-    /// <summary>
-    ///     Builds the accent maps for both variants. <paramref name="darkAccent" /> is applied
-    ///     as-is in the dark theme; <paramref name="lightAccent" /> is applied as-is in the light theme.
-    /// </summary>
+    /// <summary>Строит замены акцентных цветов и фона для светлой и тёмной тем.</summary>
     public static RecolorMaps Build(
         Color? darkAccent,
         Color? lightAccent,
@@ -93,25 +75,6 @@ internal static class PaletteMapBuilder
             light,
             darkBackground is { } dbg ? RampBuilder.BuildBackgroundRamp(dbg, SemiPalette.DarkBackground) : null,
             lightBackground);
-    }
-
-    /// <summary>Builds the inverse maps, restoring the original Semi palette.</summary>
-    public static RecolorMaps Invert(RecolorMaps maps) => new(
-        Invert(maps.DarkAccent),
-        Invert(maps.LightAccent),
-        maps.DarkBackgroundRamp is null ? null : SemiPalette.DarkBackground,
-        maps.LightBackground0 is null ? null : SemiPalette.LightBackground[0]);
-
-    private static IReadOnlyDictionary<Color, Color> Invert(IReadOnlyDictionary<Color, Color> map)
-    {
-        var inverse = new Dictionary<Color, Color>(map.Count);
-        foreach (var (key, value) in map)
-        {
-            // A ramp can collapse two steps onto the same color; keep the first (accent) one.
-            inverse.TryAdd(value, key);
-        }
-
-        return inverse;
     }
 
     private static void AddRamp(Dictionary<Color, Color> map, Color[] original, Color[] replacement)

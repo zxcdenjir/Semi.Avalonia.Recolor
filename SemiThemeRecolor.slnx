@@ -4,5 +4,9 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Semi.Avalonia.Recolor/Semi.Avalonia.Recolor.csproj" />
+    <Project Path="src/Semi.Avalonia.Recolor.Ursa/Semi.Avalonia.Recolor.Ursa.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Semi.Avalonia.Recolor.Tests/Semi.Avalonia.Recolor.Tests.csproj" />
   </Folder>
 </Solution>

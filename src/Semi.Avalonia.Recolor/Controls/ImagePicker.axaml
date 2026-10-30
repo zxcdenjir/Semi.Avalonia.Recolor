@@ -1,0 +1,144 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Semi.Avalonia.Recolor.Controls"
+             x:Class="Semi.Avalonia.Recolor.Controls.ImagePicker"
+             MinWidth="220"
+             MinHeight="156">
+    <UserControl.Styles>
+        <Style Selector="Button.ImagePickerTrigger">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="Button.ImagePickerTrigger:pointerover Border#PickerSurface">
+            <Setter Property="Opacity" Value="0.96" />
+        </Style>
+        <Style Selector="Button.ImagePickerTrigger:pressed Border#PickerSurface">
+            <Setter Property="Opacity" Value="0.88" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid>
+        <Button Classes="ImagePickerTrigger"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                CornerRadius="{Binding CornerRadius, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                ClipToBounds="True"
+                BorderThickness="0"
+                Command="{Binding PickImageCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                ToolTip.Tip="Нажмите, чтобы выбрать или заменить изображение">
+            <Border x:Name="PickerSurface"
+                    Background="{DynamicResource SemiColorBackground1}"
+                    BorderBrush="{DynamicResource SemiColorBorder}"
+                    BorderThickness="1"
+                    CornerRadius="{Binding CornerRadius, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}">
+                <Border x:Name="PickerClipSurface"
+                        Background="{DynamicResource SemiColorBackground1}"
+                        ClipToBounds="True">
+                    <Grid RowDefinitions="*,Auto">
+                    <Image Grid.RowSpan="2"
+                           Source="{Binding Image, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                           Stretch="{Binding Stretch, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                           IsVisible="{Binding HasImage, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}" />
+
+                    <Grid IsVisible="{Binding ShowCustomPlaceholder, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch">
+                        <ContentPresenter Content="{Binding Placeholder, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Stretch" />
+                    </Grid>
+
+                    <StackPanel Grid.Row="0"
+                                IsVisible="{Binding ShowDefaultPlaceholder, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="8">
+                        <Border Width="44"
+                                Height="44"
+                                CornerRadius="12"
+                                Background="{DynamicResource SemiColorFill0}"
+                                HorizontalAlignment="Center">
+                            <Path Width="22"
+                                  Height="22"
+                                  Stretch="Uniform"
+                                  Stroke="{DynamicResource ButtonDefaultPrimaryForeground}"
+                                  StrokeThickness="1.8"
+                                  StrokeLineCap="Round"
+                                  StrokeJoin="Round"
+                                  Data="M12,15 L12,3 M7,8 L12,3 L17,8 M4,15 L4,19 L20,19 L20,15" />
+                        </Border>
+                        <TextBlock Text="Добавьте изображение"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SemiColorText0}"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Text="Нажмите, чтобы выбрать файл"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource SemiColorText2}"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+
+                    <Border Grid.Row="1"
+                            IsVisible="{Binding ShowDefaultPlaceholder, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                            Padding="12,9"
+                            Background="{DynamicResource SemiColorFill0}"
+                            BorderBrush="{DynamicResource SemiColorBorder}"
+                            BorderThickness="0,1,0,0">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="PNG · JPG · WEBP · BMP"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SemiColorText2}"
+                                       VerticalAlignment="Center" />
+                            <Border Grid.Column="1"
+                                    Padding="10,5"
+                                    CornerRadius="6"
+                                    Background="{DynamicResource ButtonSolidPrimaryBackground}">
+                                <TextBlock Text="Выбрать"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="White" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    </Grid>
+                </Border>
+            </Border>
+        </Button>
+
+        <Button Width="32"
+                Height="32"
+                Padding="0"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="8"
+                IsVisible="{Binding HasImage, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                Command="{Binding ClearImageCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                CornerRadius="16"
+                ToolTip.Tip="Удалить изображение">
+            <Path Width="11"
+                  Height="11"
+                  Stretch="Uniform"
+                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                  StrokeThickness="1.8"
+                  StrokeLineCap="Round"
+                  Data="M4,4 L16,16 M16,4 L4,16" />
+        </Button>
+
+        <Border IsVisible="{Binding IsBusy, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                Background="#66000000"
+                CornerRadius="{Binding CornerRadius, RelativeSource={RelativeSource AncestorType={x:Type local:ImagePicker}}}"
+                IsHitTestVisible="False">
+            <TextBlock Text="Открываем изображение…"
+                       Foreground="White"
+                       FontWeight="SemiBold"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+        </Border>
+    </Grid>
+</UserControl>
