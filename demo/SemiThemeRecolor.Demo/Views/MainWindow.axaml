@@ -1,0 +1,238 @@
+<Window
+    x:Class="SemiThemeRecolor.Demo.Views.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:SemiThemeRecolor.Demo.ViewModels"
+    x:DataType="vm:MainWindowViewModel"
+    Title="SemiThemeRecolor Demo"
+    Width="980"
+    Height="780"
+    Background="{DynamicResource SemiColorBackground0}">
+
+    <Window.Styles>
+        <Style Selector="Border.Card">
+            <Setter Property="Background" Value="{DynamicResource SemiColorBackground1}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="20" />
+        </Style>
+        <Style Selector="TextBlock.SectionTitle">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="TextBlock.Hint">
+            <Setter Property="Opacity" Value="0.65" />
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*">
+        <Border
+            Grid.Row="0"
+            Padding="24,20"
+            Background="{DynamicResource SemiColorBackground1}"
+            BorderBrush="{DynamicResource SemiColorBorder}"
+            BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                    <TextBlock FontSize="22" FontWeight="SemiBold" Text="SemiThemeRecolor" />
+                    <TextBlock Classes="Hint" Text="Перекраска акцента и фона Semi.Avalonia во время выполнения" />
+                </StackPanel>
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding ToggleThemeCommand}"
+                    Content="Переключить Light / Dark"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Margin="24" Spacing="20">
+
+                <!--  Accent controls  -->
+                <Border Classes="Card">
+                    <StackPanel Spacing="14">
+                        <TextBlock Classes="SectionTitle" Text="Акцентный цвет" />
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                            <TextBox
+                                Text="{Binding AccentHex, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="#FF6A00" />
+                            <Button
+                                Grid.Column="1"
+                                Classes="Primary"
+                                Command="{Binding ApplyCommand}"
+                                Content="Применить"
+                                Theme="{DynamicResource SolidButton}" />
+                            <Button Grid.Column="2" Command="{Binding ResetColorsCommand}" Content="Сбросить" />
+                        </Grid>
+
+                        <WrapPanel ItemSpacing="8" LineSpacing="8">
+                            <Button Command="{Binding ApplyPresetCommand}" CommandParameter="#FF6A00" Padding="10,4">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Border Width="16" Height="16" CornerRadius="4" Background="#FF6A00" />
+                                    <TextBlock Text="Оранжевый" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ApplyPresetCommand}" CommandParameter="#00A870" Padding="10,4">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Border Width="16" Height="16" CornerRadius="4" Background="#00A870" />
+                                    <TextBlock Text="Изумрудный" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ApplyPresetCommand}" CommandParameter="#7C4DFF" Padding="10,4">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Border Width="16" Height="16" CornerRadius="4" Background="#7C4DFF" />
+                                    <TextBlock Text="Фиолетовый" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ApplyPresetCommand}" CommandParameter="#E0356F" Padding="10,4">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Border Width="16" Height="16" CornerRadius="4" Background="#E0356F" />
+                                    <TextBlock Text="Малиновый" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ApplyPresetCommand}" CommandParameter="#00A6B4" Padding="10,4">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Border Width="16" Height="16" CornerRadius="4" Background="#00A6B4" />
+                                    <TextBlock Text="Бирюзовый" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ApplyPresetCommand}" CommandParameter="#C79100" Padding="10,4">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Border Width="16" Height="16" CornerRadius="4" Background="#C79100" />
+                                    <TextBlock Text="Золотой" />
+                                </StackPanel>
+                            </Button>
+                        </WrapPanel>
+
+                        <StackPanel Spacing="8">
+                            <CheckBox Content="Перекрашивать фон" IsChecked="{Binding RecolorBackground}" />
+                            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8">
+                                <TextBlock Text="Dark:" VerticalAlignment="Center" />
+                                <TextBox
+                                    Grid.Column="1"
+                                    Width="120"
+                                    Text="{Binding BackgroundDarkHex, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock
+                                    Grid.Column="2"
+                                    Text="Light:"
+                                    VerticalAlignment="Center" />
+                                <TextBox
+                                    Grid.Column="3"
+                                    Width="120"
+                                    Text="{Binding BackgroundLightHex, UpdateSourceTrigger=PropertyChanged}" />
+                            </Grid>
+                            <TextBlock
+                                Classes="Hint"
+                                Text="Тёмная тема: рампа Background0..4; светлая: только Background0 (остальные поверхности остаются белыми)."
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <TextBlock Classes="Hint" Text="{Binding Status}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <!--  Controls showcase  -->
+                <Border Classes="Card">
+                    <StackPanel Spacing="16">
+                        <TextBlock Classes="SectionTitle" Text="Контролы Semi" />
+
+                        <WrapPanel ItemSpacing="10" LineSpacing="10">
+                            <Button Content="Default" />
+                            <Button Classes="Primary" Content="Primary" />
+                            <Button Classes="Secondary" Content="Secondary" />
+                            <Button
+                                Classes="Primary"
+                                Content="Solid Primary"
+                                Theme="{DynamicResource SolidButton}" />
+                            <Button
+                                Classes="Secondary"
+                                Content="Solid Secondary"
+                                Theme="{DynamicResource SolidButton}" />
+                            <Button
+                                Classes="Primary"
+                                Content="Outline Primary"
+                                Theme="{DynamicResource OutlineButton}" />
+                            <Button
+                                Classes="Primary"
+                                Content="Disabled"
+                                IsEnabled="False"
+                                Theme="{DynamicResource SolidButton}" />
+                        </WrapPanel>
+
+                        <WrapPanel ItemSpacing="28" LineSpacing="12">
+                            <CheckBox Content="Флажок" IsChecked="True" />
+                            <CheckBox Content="Без отметки" />
+                            <RadioButton Content="Радио 1" IsChecked="True" />
+                            <RadioButton Content="Радио 2" />
+                            <ToggleSwitch Content="Тумблер" IsChecked="True" />
+                        </WrapPanel>
+
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="12">
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Text="Slider"
+                                VerticalAlignment="Center" />
+                            <Slider Grid.Row="0" Grid.Column="1" Value="60" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Text="Progress"
+                                VerticalAlignment="Center" />
+                            <ProgressBar Grid.Row="1" Grid.Column="1" Value="45" />
+                        </Grid>
+
+                        <TextBox PlaceholderText="Текстовое поле — выделите текст, чтобы увидеть SelectionBackground" />
+                    </StackPanel>
+                </Border>
+
+                <!--  Tabs and data  -->
+                <Border Classes="Card">
+                    <StackPanel Spacing="12">
+                        <TextBlock Classes="SectionTitle" Text="Вкладки и данные" />
+                        <TabControl>
+                            <TabItem Header="Элементы">
+                                <ListBox
+                                    Margin="0,12,0,0"
+                                    MaxHeight="220"
+                                    ItemsSource="{Binding People}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:Person">
+                                            <StackPanel Spacing="2">
+                                                <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
+                                                <TextBlock Classes="Hint" Text="{Binding Role}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </TabItem>
+                            <TabItem Header="Данные">
+                                <DataGrid
+                                    Margin="0,12,0,0"
+                                    AutoGenerateColumns="False"
+                                    Height="260"
+                                    IsReadOnly="True"
+                                    ItemsSource="{Binding People}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Binding="{Binding Name}" Header="Имя" Width="2*" />
+                                        <DataGridTextColumn Binding="{Binding Role}" Header="Роль" Width="*" />
+                                        <DataGridTextColumn Binding="{Binding City}" Header="Город" Width="*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </TabItem>
+                            <TabItem Header="О теме">
+                                <TextBlock
+                                    Margin="0,12,0,0"
+                                    Classes="Hint"
+                                    TextWrapping="Wrap"
+                                    Text="Акцентная палитра Semi (Primary, Secondary, Information, Link, FocusBorder, выделение текста) строится из вашего HEX в пространстве OKLCH: сохраняется кривая светлоты и хромы оригинальной шкалы, а введённый цвет становится ступенью 5. Secondary выводится из Primary так же, как Semi выводит LightBlue из Blue." />
+                            </TabItem>
+                        </TabControl>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

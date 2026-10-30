@@ -1,0 +1,9 @@
+<Project>
+    <PropertyGroup>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <Authors>Denjir</Authors>
+        <Description>Runtime accent recoloring for the Semi.Avalonia theme.</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    </PropertyGroup>
+</Project>

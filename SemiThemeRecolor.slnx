@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/demo/">
+    <Project Path="demo/SemiThemeRecolor.Demo/SemiThemeRecolor.Demo.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Semi.Avalonia.Recolor/Semi.Avalonia.Recolor.csproj" />
+  </Folder>
+</Solution>
