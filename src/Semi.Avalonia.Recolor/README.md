@@ -72,7 +72,8 @@ Changes to the properties and `Application.ActualThemeVariantChanged` are handle
 
 * Avalonia 12.x (tested with 12.1.0).
 * Semi.Avalonia 12.1.0.1 (`Semi.Avalonia`, `Semi.Avalonia.DataGrid`, `Semi.Avalonia.TreeDataGrid`,
-  `Semi.Avalonia.ColorPicker`) and `Ursa.Themes.Semi`.
+  `Semi.Avalonia.ColorPicker`) and `Irihi.Ursa.Themes.Semi` 2.2.0 (verified live with an Ursa app:
+  `Avatar`, `Badge`, … are recolored).
 * `net8.0` and `net10.0`.
 * High-contrast variants (`Aquatic`, `Desert`, `Dusk`, `NightSky`) are system-color based and are not
   recolored.
