@@ -2,8 +2,11 @@
     <PropertyGroup>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
-        <Authors>Denjir</Authors>
+        <Authors>zxcdenjir</Authors>
         <Description>Runtime accent recoloring for the Semi.Avalonia theme.</Description>
+        <PackageProjectUrl>https://github.com/zxcdenjir/Semi.Avalonia.Recolor</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/zxcdenjir/Semi.Avalonia.Recolor</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 </Project>
