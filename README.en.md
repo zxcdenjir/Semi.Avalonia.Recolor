@@ -11,11 +11,11 @@ SemiThemeRecolor builds accent palettes from a chosen color and overrides the re
 - Recolors Primary, Secondary, information resources, and related Semi control states.
 - Accepts separate Light and Dark backgrounds; Dark receives a `Background0–4` ramp.
 - Optional Ursa package with Ursa resource overrides and dialog hosts for Avalonia pages.
-- `ImagePicker` with preview and PNG, JPEG, WebP, and BMP selection; GIF is excluded.
+- `ImagePicker` with preview and the platform image picker.
 - Android haptic feedback with global defaults and per-button overrides.
 - `SemiSpaced` class for `ItemsControl` with spacing set to 12.
 
-The core package does not depend on Semi.Avalonia or Ursa. Ursa support is available as a separate integration package.
+The library is intended to be used with `SemiTheme` from Semi.Avalonia. Load that theme before `SemiThemeRecolor`. Ursa support is available in a separate optional package.
 
 ## Installation
 
@@ -131,20 +131,6 @@ The built-in adapter targets Android. `HapticFeedback.PlatformFeedback` is avail
 ```
 
 The class uses a vertical `StackPanel` with `Spacing="12"`. Avoid it when the control requires virtualization or a different items panel.
-
-## Persisting a user's accent
-
-The library does not select a settings store. Save the chosen color using your app's existing settings API and restore it before showing the first window:
-
-```csharp
-if (Color.TryParse(savedAccent, out var accent))
-{
-    recolor.PrimaryColor = accent;
-    recolor.Reapply();
-}
-```
-
-For example, store a HEX string in Android Preferences or your app's preferred settings store on other platforms.
 
 ## Demo and resource catalog
 
