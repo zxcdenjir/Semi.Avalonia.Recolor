@@ -1,6 +1,7 @@
 using System;
 
 using Avalonia;
+using XamlMcp.Avalonia;
 
 namespace SemiThemeRecolor.Demo;
 
@@ -11,6 +12,7 @@ internal static class Program
         .StartWithClassicDesktopLifetime(args);
 
     public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<App>()
+        .AttachXamlMcp()
         .UsePlatformDetect()
         .WithInterFont()
         .LogToTrace();

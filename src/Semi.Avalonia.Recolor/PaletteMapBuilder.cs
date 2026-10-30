@@ -50,24 +50,42 @@ internal static class PaletteMapBuilder
         var dark = new Dictionary<Color, Color>();
         var light = new Dictionary<Color, Color>();
 
-        if (darkAccent is { } da)
+        // Secondary (LightBlue) can be set independently of the primary accent.
+        var darkSecondary = secondaryDark
+                            ?? (darkAccent is { } da
+                                ? RampBuilder.DeriveCompanion(da, SemiPalette.DarkBlue[5],
+                                    SemiPalette.DarkLightBlue[5])
+                                : (Color?)null);
+        var lightSecondary = secondaryLight
+                             ?? (lightAccent is { } la
+                                 ? RampBuilder.DeriveCompanion(la, SemiPalette.LightBlue[5],
+                                     SemiPalette.LightLightBlue[5])
+                                 : (Color?)null);
+
+        if (darkAccent is { } darkAccentValue)
         {
-            var secondary = secondaryDark
-                            ?? RampBuilder.DeriveCompanion(da, SemiPalette.DarkBlue[5], SemiPalette.DarkLightBlue[5]);
-            AddRamp(dark, SemiPalette.DarkBlue, RampBuilder.Build(SemiPalette.DarkBlue, da));
-            AddRamp(dark, SemiPalette.DarkLightBlue, RampBuilder.Build(SemiPalette.DarkLightBlue, secondary));
+            AddRamp(dark, SemiPalette.DarkBlue, RampBuilder.Build(SemiPalette.DarkBlue, darkAccentValue));
             dark[SemiPalette.SelectionBlue] =
-                RampBuilder.RecolorHue(SemiPalette.SelectionBlue, Oklch.FromColor(da).H);
+                RampBuilder.RecolorHue(SemiPalette.SelectionBlue, Oklch.FromColor(darkAccentValue).H);
         }
 
-        if (lightAccent is { } la)
+        if (darkSecondary is { } darkSecondaryValue)
         {
-            var secondary = secondaryLight
-                            ?? RampBuilder.DeriveCompanion(la, SemiPalette.LightBlue[5], SemiPalette.LightLightBlue[5]);
-            AddRamp(light, SemiPalette.LightBlue, RampBuilder.Build(SemiPalette.LightBlue, la));
-            AddRamp(light, SemiPalette.LightLightBlue, RampBuilder.Build(SemiPalette.LightLightBlue, secondary));
+            AddRamp(dark, SemiPalette.DarkLightBlue,
+                RampBuilder.Build(SemiPalette.DarkLightBlue, darkSecondaryValue));
+        }
+
+        if (lightAccent is { } lightAccentValue)
+        {
+            AddRamp(light, SemiPalette.LightBlue, RampBuilder.Build(SemiPalette.LightBlue, lightAccentValue));
             light[SemiPalette.SelectionBlue] =
-                RampBuilder.RecolorHue(SemiPalette.SelectionBlue, Oklch.FromColor(la).H);
+                RampBuilder.RecolorHue(SemiPalette.SelectionBlue, Oklch.FromColor(lightAccentValue).H);
+        }
+
+        if (lightSecondary is { } lightSecondaryValue)
+        {
+            AddRamp(light, SemiPalette.LightLightBlue,
+                RampBuilder.Build(SemiPalette.LightLightBlue, lightSecondaryValue));
         }
 
         return new RecolorMaps(

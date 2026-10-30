@@ -156,10 +156,10 @@ public class SemiThemeRecolor : Styles
                                   ? RampBuilder.Adapt(p, SemiPalette.DarkBlue[5], SemiPalette.LightBlue[5])
                                   : (Color?)null);
 
-        var secondaryDark = secondary is { } sd && darkTarget is not null
+        var secondaryDark = secondary is { } sd
             ? sd
             : (Color?)null;
-        var secondaryLight = secondary is { } sl && lightTarget is not null
+        var secondaryLight = secondary is { } sl
             ? RampBuilder.Adapt(sl, SemiPalette.DarkBlue[5], SemiPalette.LightBlue[5])
             : (Color?)null;
 

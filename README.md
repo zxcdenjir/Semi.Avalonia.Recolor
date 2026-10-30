@@ -43,9 +43,20 @@ demo/SemiThemeRecolor.Demo/  демо-приложение (контролы, Da
 dotnet run --project demo/SemiThemeRecolor.Demo/SemiThemeRecolor.Demo.csproj
 ```
 
-В демо можно ввести HEX акцента, выбрать пресет, задать фон отдельно для светлой и тёмной темы,
-переключить Light/Dark. Сохранённые скриншоты: `docs/demo-dark.png`, `docs/demo-light.png`
+В демо можно ввести HEX акцента, задать Secondary (или оставить пустым — он выводится из Primary),
+выбрать пресет, задать фон отдельно для светлой и тёмной темы, переключить Light/Dark.
+Сохранённые скриншоты: `docs/demo-dark.png`, `docs/demo-light.png`
 (генерируются режимом `SEMI_RECOLOR_RENDER=<path>`).
+
+Демо также подключено к [XamlMcp](https://www.rahultr.dev/xamlmcp/): инспекция живого дерева,
+ресурсов и скриншоты. Запуск с агентом:
+
+```powershell
+$env:XAML_MCP="1"; dotnet run --project demo/SemiThemeRecolor.Demo/SemiThemeRecolor.Demo.csproj
+```
+
+Диагностические переменные: `SEMI_RECOLOR_DUMP=1` (дамп ресурсов и выход),
+`SEMI_RECOLOR_VARIANT=Light|Dark`, `SEMI_RECOLOR_SECONDARY_ONLY=<hex>` (проверка Secondary без Primary).
 
 ## Сборка пакета
 

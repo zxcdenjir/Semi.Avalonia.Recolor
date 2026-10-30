@@ -66,6 +66,14 @@
                             <Button Grid.Column="2" Command="{Binding ResetColorsCommand}" Content="Сбросить" />
                         </Grid>
 
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Text="Secondary:" VerticalAlignment="Center" />
+                            <TextBox
+                                Grid.Column="1"
+                                Text="{Binding SecondaryHex, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="пусто — выводится из Primary" />
+                        </Grid>
+
                         <WrapPanel ItemSpacing="8" LineSpacing="8">
                             <Button Command="{Binding ApplyPresetCommand}" CommandParameter="#FF6A00" Padding="10,4">
                                 <StackPanel Orientation="Horizontal" Spacing="8">

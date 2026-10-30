@@ -16,6 +16,9 @@ public partial class MainWindowViewModel : ObservableObject
     private string _accentHex = "#FF6A00";
 
     [ObservableProperty]
+    private string _secondaryHex = "";
+
+    [ObservableProperty]
     private string _backgroundDarkHex = "#1B1B22";
 
     [ObservableProperty]
@@ -68,6 +71,20 @@ public partial class MainWindowViewModel : ObservableObject
         }
 
         recolor.PrimaryColor = accent;
+
+        if (string.IsNullOrWhiteSpace(SecondaryHex))
+        {
+            recolor.SecondaryColor = null;
+        }
+        else if (Color.TryParse(SecondaryHex, out var secondary))
+        {
+            recolor.SecondaryColor = secondary;
+        }
+        else
+        {
+            Status = $"Не удалось разобрать цвет Secondary «{SecondaryHex}».";
+            return;
+        }
 
         if (RecolorBackground)
         {
@@ -126,6 +143,7 @@ public partial class MainWindowViewModel : ObservableObject
         recolor.Reset();
 
         AccentHex = "#0064FA";
+        SecondaryHex = "";
         BackgroundDarkHex = "#16161A";
         BackgroundLightHex = "#FFFFFF";
         Status = "Исходная палитра Semi восстановлена.";

@@ -28,6 +28,16 @@ public partial class App : Application
     {
         Recolor = Styles.OfType<RecolorStyle>().FirstOrDefault();
 
+        // Dev-only: exercise the "secondary accent without a primary" path.
+        if (Recolor is { } recolor
+            && Environment.GetEnvironmentVariable("SEMI_RECOLOR_SECONDARY_ONLY") is { Length: > 0 } secondaryHex
+            && Color.TryParse(secondaryHex, out var secondaryOnly))
+        {
+            recolor.PrimaryColor = null;
+            recolor.SecondaryColor = secondaryOnly;
+            recolor.Reapply();
+        }
+
         var requestedVariant = Environment.GetEnvironmentVariable("SEMI_RECOLOR_VARIANT");
         if (string.Equals(requestedVariant, "Light", StringComparison.OrdinalIgnoreCase))
         {
