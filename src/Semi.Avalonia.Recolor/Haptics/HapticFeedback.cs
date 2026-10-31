@@ -12,11 +12,11 @@ namespace Semi.Avalonia.Recolor.Haptics;
 /// использует настройку приложения.</summary>
 public static class HapticFeedback
 {
-    /// <summary>Прикреплённое свойство, которое включает или отключает отклик для кнопки.</summary>
+    /// <summary>Прикреплённое свойство, которое включает или отключает отклик для контрола.</summary>
     public static readonly AttachedProperty<bool?> IsEnabledProperty =
         AvaloniaProperty.RegisterAttached<Control, bool?>("IsEnabled", typeof(HapticFeedback));
 
-    /// <summary>Прикреплённое свойство с типом отклика для кнопки.</summary>
+    /// <summary>Прикреплённое свойство с типом отклика для контрола.</summary>
     public static readonly AttachedProperty<HapticType?> TypeProperty =
         AvaloniaProperty.RegisterAttached<Control, HapticType?>("Type", typeof(HapticFeedback));
 
@@ -25,7 +25,7 @@ public static class HapticFeedback
     /// <summary>Общее состояние отклика, задаваемое свойством <see cref="SemiThemeRecolor.EnableHaptic"/>.</summary>
     public static bool IsGloballyEnabled { get; set; }
 
-    /// <summary>Тип отклика по умолчанию, если для кнопки не задан отдельный тип.</summary>
+    /// <summary>Тип отклика по умолчанию, если для контрола не задан отдельный тип.</summary>
     public static HapticType DefaultType { get; set; } = HapticType.Click;
 
     /// <summary>Необязательный обработчик для собственной реализации отклика на другой платформе.</summary>
@@ -53,11 +53,27 @@ public static class HapticFeedback
         if (!IsGloballyEnabled)
             return;
 
-        var selectedType = type ?? DefaultType;
+        Perform(type ?? DefaultType);
+    }
+
+    /// <summary>Запрашивает отклик для контрола с учётом его прикреплённых настроек.</summary>
+    public static void TriggerFor(Control element, HapticType? type = null)
+    {
+        ArgumentNullException.ThrowIfNull(element);
+        GC.KeepAlive(ButtonClickRegistration);
+        var localEnabled = GetIsEnabled(element);
+        if (localEnabled == false || localEnabled != true && !IsGloballyEnabled)
+            return;
+
+        Perform(GetType(element) ?? type ?? DefaultType);
+    }
+
+    private static void Perform(HapticType type)
+    {
         if (PlatformFeedback is { } feedback)
-            feedback(selectedType);
+            feedback(type);
         else
-            TryTriggerAndroid(selectedType);
+            TryTriggerAndroid(type);
     }
 
     private static void OnButtonClick(object? sender, RoutedEventArgs e)
@@ -65,17 +81,7 @@ public static class HapticFeedback
         if (sender is not Button button)
             return;
 
-        var localEnabled = GetIsEnabled(button);
-        if (localEnabled == false)
-            return;
-        if (localEnabled != true && !IsGloballyEnabled)
-            return;
-
-        var type = GetType(button) ?? DefaultType;
-        if (PlatformFeedback is { } feedback)
-            feedback(type);
-        else
-            TryTriggerAndroid(type);
+        TriggerFor(button);
     }
 
     // Keep the core assembly platform-neutral. On Android this discovers the platform runtime

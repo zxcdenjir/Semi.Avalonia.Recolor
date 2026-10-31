@@ -70,7 +70,7 @@ dotnet add package Semi.Avalonia.Recolor
 <recolor:SemiThemeRecolor EnableHaptic="True" HapticType="Click" />
 ```
 
-Отдельную кнопку можно настроить через `HapticFeedback.IsEnabled` и `HapticFeedback.Type`. В Android-приложении добавьте разрешение `android.permission.VIBRATE`. На других платформах встроенный обработчик ничего не делает; при необходимости задайте собственную реализацию через `HapticFeedback.PlatformFeedback`.
+Отдельную кнопку можно настроить через `HapticFeedback.IsEnabled` и `HapticFeedback.Type`. При подключённом `UrsaRecolorStyles` эти свойства также управляют откликом `SelectionList`. В Android-приложении добавьте разрешение `android.permission.VIBRATE`. На других платформах встроенный обработчик ничего не делает; при необходимости задайте собственную реализацию через `HapticFeedback.PlatformFeedback`.
 
 ### Интервал в ItemsControl
 

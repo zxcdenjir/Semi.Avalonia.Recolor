@@ -163,6 +163,7 @@ internal static class PaletteResourceCatalog
         new("RadioButtonUncheckIconPointeroverBorderBrush", "SemiColorPrimaryPointerover"),
         new("RadioButtonUncheckIconPressedBorderBrush", "SemiColorPrimaryActive"),
         new("RefreshVisualizerIconForeground", "SemiColorPrimary"),
+        new("SelectionListIndicatorBackground", "SemiBlue1"),
         new("SliderThumbBorderBrush", "SemiColorPrimary"),
         new("SliderThumbPointeroverBorderBrush", "SemiColorPrimaryPointerover"),
         new("SliderThumbPressedBorderBrush", "SemiColorPrimaryActive"),

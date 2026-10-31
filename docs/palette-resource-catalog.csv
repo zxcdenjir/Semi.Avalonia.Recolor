@@ -298,6 +298,7 @@ Ursa,Dark,OverlayDialogMaskBrush,SemiColorOverlayBackground,Ursa.Avalonia/src/Ur
 Ursa,Dark,PaginationButtonSelectedBackground,SemiColorPrimaryLight,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Dark/Pagination.axaml,8
 Ursa,Dark,PaginationButtonSelectedForeground,SemiColorPrimary,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Dark/Pagination.axaml,3
 Ursa,Dark,PopConfirmBackground,SemiColorBackground3,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Dark/PopConfirm.axaml,2
+Ursa,Dark,SelectionListIndicatorBackground,SemiBlue1,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Dark/SelectionList.axaml,2
 Ursa,Dark,TimelineOngoingDotFill,SemiColorPrimary,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Dark/Timeline.axaml,5
 Ursa,Dark,ToastCardBackground,SemiColorBackground3,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Dark/Toast.axaml,3
 Ursa,Dark,TwoTonePathIconActiveForeground,SemiColorPrimaryPointerover,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Dark/TwoTonePathIcon.axaml,4
@@ -365,6 +366,7 @@ Ursa,Light,OverlayDialogMaskBrush,SemiColorOverlayBackground,Ursa.Avalonia/src/U
 Ursa,Light,PaginationButtonSelectedBackground,SemiColorPrimaryLight,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Light/Pagination.axaml,8
 Ursa,Light,PaginationButtonSelectedForeground,SemiColorPrimary,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Light/Pagination.axaml,3
 Ursa,Light,PopConfirmBackground,SemiColorBackground3,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Light/PopConfirm.axaml,2
+Ursa,Light,SelectionListIndicatorBackground,SemiBlue1,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Light/SelectionList.axaml,2
 Ursa,Light,TimelineOngoingDotFill,SemiColorPrimary,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Light/Timeline.axaml,5
 Ursa,Light,ToastCardBackground,SemiColorBackground3,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Light/Toast.axaml,3
 Ursa,Light,TwoTonePathIconActiveForeground,SemiColorPrimaryPointerover,Ursa.Avalonia/src/Ursa.Themes.Semi/Themes/Light/TwoTonePathIcon.axaml,4

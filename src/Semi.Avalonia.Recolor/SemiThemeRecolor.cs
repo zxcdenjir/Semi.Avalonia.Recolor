@@ -349,6 +349,13 @@ public class SemiThemeRecolor : Styles
             return true;
         }
 
+        if (sourceKey == "SemiBlue1")
+        {
+            var paletteColor = (isDark ? SemiPalette.DarkBlue : SemiPalette.LightBlue)[1];
+            var accentMap = isDark ? maps.DarkAccent : maps.LightAccent;
+            return accentMap.TryGetValue(paletteColor, out color);
+        }
+
         var isPrimary = sourceKey.StartsWith("SemiColorPrimary", StringComparison.Ordinal);
         var isInformation = sourceKey.StartsWith("SemiColorInformation", StringComparison.Ordinal);
         var isSecondary = sourceKey.StartsWith("SemiColorSecondary", StringComparison.Ordinal);

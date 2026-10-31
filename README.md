@@ -115,6 +115,7 @@ dotnet add package Semi.Avalonia.Recolor.Ursa
 ```
 
 Встроенная реализация рассчитана на Android. Для собственной платформенной реализации доступен `HapticFeedback.PlatformFeedback`.
+При включённом Haptic и подключённом `UrsaRecolorStyles` выбор элемента в `SelectionList` вызывает отклик типа `Selection`; его можно отключить или переопределить через `HapticFeedback.IsEnabled` и `HapticFeedback.Type`.
 
 ### Интервал в ItemsControl
 

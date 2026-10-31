@@ -23,7 +23,7 @@ def source_is_supported(key: str) -> bool:
     return (
         key.startswith(PALETTE_PREFIXES)
         or BACKGROUND_KEY.fullmatch(key) is not None
-        or key in {"SemiColorNavBackground", "SemiColorOverlayBackground"}
+        or key in {"SemiColorNavBackground", "SemiColorOverlayBackground", "SemiBlue1"}
     )
 
 
@@ -108,6 +108,7 @@ def render_markdown(rows: list[dict[str, str]]) -> str:
 
 Каталог собирается из прямых ссылок ресурсов Light/Dark на палитровые токены Semi.
 Информационные токены Semi являются алиасами основной синей рампы и перекрашиваются вместе с Primary.
+Ресурс Ursa `SelectionListIndicatorBackground` использует `SemiBlue1`; библиотека заменяет его оттенком 1 рампы Primary.
 
 | Пакет | Light | Dark |
 | --- | ---: | ---: |

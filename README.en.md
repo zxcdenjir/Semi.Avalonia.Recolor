@@ -120,6 +120,7 @@ Add this permission to `Platforms/Android/AndroidManifest.xml`:
 ```
 
 The built-in adapter targets Android. `HapticFeedback.PlatformFeedback` is available for a custom platform implementation.
+When Haptic is enabled and `UrsaRecolorStyles` is included, selecting an item in `SelectionList` triggers `Selection` feedback. Override or disable it with `HapticFeedback.IsEnabled` and `HapticFeedback.Type`.
 
 ### ItemsControl spacing
 
