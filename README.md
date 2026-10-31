@@ -147,7 +147,7 @@ python tools/generate_palette_catalog.py --check
 ## Совместимость
 
 - Avalonia 12.x; в проекте проверяется Avalonia 12.1.0.
-- Semi.Avalonia 12.1.0.1 и Ursa 2.2.0.
+- Semi.Avalonia 12.1.0.1 и Ursa 2.3.0.
 - `net8.0` и `net10.0`.
 - ImagePicker использует `TopLevel.StorageProvider`.
 - Встроенный Haptic-адаптер поддерживает Android.

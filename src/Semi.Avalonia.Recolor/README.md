@@ -79,7 +79,7 @@ dotnet add package Semi.Avalonia.Recolor
 ## Совместимость
 
 - Avalonia 12.x (`net8.0` и `net10.0`).
-- Проверено с Semi.Avalonia 12.1.0.1 и Ursa 2.2.0.
+- Проверено с Semi.Avalonia 12.1.0.1 и Ursa 2.3.0.
 - Для перекраски требуется тема `SemiTheme` из Semi.Avalonia; Ursa остаётся необязательной.
 - Встроенный тактильный отклик предусмотрен для Android.
 

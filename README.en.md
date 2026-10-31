@@ -152,7 +152,7 @@ The first command updates the CSV, summary, and C# catalog. `--check` reports st
 ## Compatibility
 
 - Avalonia 12.x; the project currently builds against Avalonia 12.1.0.
-- Semi.Avalonia 12.1.0.1 and Ursa 2.2.0.
+- Semi.Avalonia 12.1.0.1 and Ursa 2.3.0.
 - `net8.0` and `net10.0`.
 - ImagePicker uses `TopLevel.StorageProvider`.
 - The built-in Haptic adapter supports Android.

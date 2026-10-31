@@ -16,8 +16,8 @@
     <PackageVersion Include="Semi.Avalonia" Version="$(SemiAvaloniaVersion)" />
     <PackageVersion Include="Semi.Avalonia.DataGrid" Version="$(SemiAvaloniaVersion)" />
     <PackageVersion Include="Semi.Avalonia.ColorPicker" Version="$(SemiAvaloniaVersion)" />
-    <PackageVersion Include="Irihi.Ursa.Themes.Semi" Version="2.2.0" />
-    <PackageVersion Include="Irihi.Ursa" Version="2.2.0" />
+    <PackageVersion Include="Irihi.Ursa.Themes.Semi" Version="2.3.0" />
+    <PackageVersion Include="Irihi.Ursa" Version="2.3.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="xunit.v3.runner.msbuild" Version="3.2.2" />
