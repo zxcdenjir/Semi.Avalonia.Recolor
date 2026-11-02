@@ -7,6 +7,14 @@
         <Setter Property="Margin" Value="32,0,0,0" />
     </Style>
 
+    <Style Selector="u|UrsaWindow">
+        <Setter Property="TitleBarMargin" Value="32,0,0,0" />
+        <Setter Property="TitleBarBackground" Value="Transparent" />
+    </Style>
+    <Style Selector="u|UrsaView">
+        <Setter Property="TitleBarBackground" Value="Transparent" />
+    </Style>
+
     <!-- Applies an overlay host to the outermost Avalonia Page on a TopLevel. -->
     <Style Selector="Page">
         <Setter Property="recolorUrsa:PageOverlayDialogHost.IsEnabled" Value="True" />
